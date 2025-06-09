@@ -3,93 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React TicTacToe Game</title>
+    <title>React Tic-Tac-Toe Game - Enhanced</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+
         .game {
             display: flex;
             flex-direction: column;
             align-items: center;
             background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-        .game-board {
-            margin: 20px 0;
-        }
-        .board-row {
-            display: flex;
-        }
-        .square {
-            background: #fff;
-            border: 2px solid #999;
-            float: left;
-            font-size: 36px;
+
+        .game-title {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: bold;
-            line-height: 60px;
-            height: 60px;
-            margin-right: -2px;
-            margin-top: -2px;
-            padding: 0;
-            text-align: center;
-            width: 60px;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
-        .square:hover {
-            background-color: #f5f5f5;
-        }
-        .square:focus {
-            outline: none;
-            background-color: #e0e0e0;
-        }
+
         .status {
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
             color: #333;
+            font-weight: 600;
+            min-height: 2rem;
         }
-        .reset-button {
-            background-color: #4CAF50;
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-gap: 8px;
+            background-color: #764ba2;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+        }
+
+        .square {
+            background-color: #fff;
             border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
+            font-size: 2.5rem;
+            font-weight: bold;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            height: 120px;
+            width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
         }
-        .reset-button:hover {
-            background-color: #45a049;
+
+        .square::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
+
+        .square:hover::before {
+            width: 150px;
+            height: 150px;
+        }
+
+        .square:hover:not(:disabled) {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .square:disabled {
+            cursor: not-allowed;
+        }
+
+        .square.X {
+            color: #ff6b6b;
+        }
+
+        .square.O {
+            color: #4ecdc4;
+        }
+
         .game-info {
-            margin-left: 20px;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
         }
-        .winner-x {
-            color: #f44336;
+
+        .button {
+            font-size: 1.1rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .winner-o {
-            color: #2196F3;
+
+        .reset-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .clear-scores-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .clear-scores-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .score-board {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            background: #f8f9fa;
+            padding: 1.5rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .score-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .player-x .score-label {
+            color: #ff6b6b;
+        }
+
+        .player-x .score-value {
+            color: #ff6b6b;
+        }
+
+        .player-o .score-label {
+            color: #4ecdc4;
+        }
+
+        .player-o .score-value {
+            color: #4ecdc4;
+        }
+
+        .draws .score-label {
+            color: #666;
+        }
+
+        .draws .score-value {
+            color: #666;
+        }
+
+        @keyframes win-animation {
+            0% { 
+                transform: scale(1) rotate(0deg);
+                background-color: #fff;
+            }
+            50% { 
+                transform: scale(1.1) rotate(5deg);
+                background-color: #fffacd;
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                background-color: #fffacd;
+            }
+        }
+
+        .winner-square {
+            animation: win-animation 0.6s ease-in-out;
+            background-color: #fffacd !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .game {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .winner-message {
+            color: #667eea;
+            font-weight: bold;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .draw-message {
+            color: #f5576c;
+            font-weight: bold;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 2rem;
+            }
+
+            .board {
+                grid-template-columns: repeat(3, 90px);
+                grid-gap: 6px;
+                padding: 6px;
+            }
+
+            .square {
+                height: 90px;
+                width: 90px;
+                font-size: 2rem;
+            }
+
+            .score-board {
+                gap: 1.5rem;
+                padding: 1rem 1.5rem;
+            }
+
+            .score-value {
+                font-size: 2rem;
+            }
+
+            .button {
+                font-size: 1rem;
+                padding: 0.6rem 1.2rem;
+            }
         }
     </style>
 </head>
@@ -97,121 +295,170 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
-        function Square({ value, onSquareClick }) {
+        function Square({ value, onClick, isWinningSquare }) {
             return (
-                <button className="square" onClick={onSquareClick}>
+                <button 
+                    className={`square ${value || ''} ${isWinningSquare ? 'winner-square' : ''}`}
+                    onClick={onClick}
+                    disabled={value !== null}
+                >
                     {value}
                 </button>
             );
         }
 
-        function Board({ xIsNext, squares, onPlay }) {
-            function handleClick(i) {
-                if (calculateWinner(squares) || squares[i]) {
-                    return;
-                }
-                const nextSquares = squares.slice();
-                if (xIsNext) {
-                    nextSquares[i] = 'X';
-                } else {
-                    nextSquares[i] = 'O';
-                }
-                onPlay(nextSquares);
-            }
-
-            const winner = calculateWinner(squares);
-            let status;
-            if (winner) {
-                status = (
-                    <span>
-                        Winner: 
-                        <span className={winner === 'X' ? 'winner-x' : 'winner-o'}>
-                            {' ' + winner}
-                        </span>
-                    </span>
+        function Board({ squares, onClick, winningLine }) {
+            const renderSquare = (i) => {
+                return (
+                    <Square
+                        key={i}
+                        value={squares[i]}
+                        onClick={() => onClick(i)}
+                        isWinningSquare={winningLine && winningLine.includes(i)}
+                    />
                 );
-            } else if (squares.every(square => square !== null)) {
-                status = "Draw!";
-            } else {
-                status = "Next player: " + (xIsNext ? 'X' : 'O');
-            }
+            };
 
             return (
-                <>
-                    <div className="status">{status}</div>
-                    <div className="board-row">
-                        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-                        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-                        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-                    </div>
-                    <div className="board-row">
-                        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-                        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-                        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-                    </div>
-                    <div className="board-row">
-                        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-                        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-                        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-                    </div>
-                </>
-            );
-        }
-
-        function Game() {
-            const [history, setHistory] = useState([Array(9).fill(null)]);
-            const [currentMove, setCurrentMove] = useState(0);
-            const xIsNext = currentMove % 2 === 0;
-            const currentSquares = history[currentMove];
-
-            function handlePlay(nextSquares) {
-                const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-                setHistory(nextHistory);
-                setCurrentMove(nextHistory.length - 1);
-            }
-
-            function jumpTo(nextMove) {
-                setCurrentMove(nextMove);
-            }
-
-            function resetGame() {
-                setHistory([Array(9).fill(null)]);
-                setCurrentMove(0);
-            }
-
-            return (
-                <div className="game">
-                    <h1>TicTacToe Game</h1>
-                    <div className="game-board">
-                        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-                    </div>
-                    <button className="reset-button" onClick={resetGame}>
-                        Reset Game
-                    </button>
+                <div className="board">
+                    {[...Array(9)].map((_, i) => renderSquare(i))}
                 </div>
             );
         }
 
-        function calculateWinner(squares) {
-            const lines = [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8],
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8],
-                [0, 4, 8],
-                [2, 4, 6],
-            ];
-            for (let i = 0; i < lines.length; i++) {
-                const [a, b, c] = lines[i];
-                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                    return squares[a];
+        function Game() {
+            const [squares, setSquares] = useState(Array(9).fill(null));
+            const [xIsNext, setXIsNext] = useState(true);
+            const [scoreX, setScoreX] = useState(() => {
+                const saved = localStorage.getItem('tictactoe-scoreX');
+                return saved ? parseInt(saved) : 0;
+            });
+            const [scoreO, setScoreO] = useState(() => {
+                const saved = localStorage.getItem('tictactoe-scoreO');
+                return saved ? parseInt(saved) : 0;
+            });
+            const [draws, setDraws] = useState(() => {
+                const saved = localStorage.getItem('tictactoe-draws');
+                return saved ? parseInt(saved) : 0;
+            });
+            const [gameOver, setGameOver] = useState(false);
+
+            function calculateWinner(squares) {
+                const lines = [
+                    [0, 1, 2],
+                    [3, 4, 5],
+                    [6, 7, 8],
+                    [0, 3, 6],
+                    [1, 4, 7],
+                    [2, 5, 8],
+                    [0, 4, 8],
+                    [2, 4, 6],
+                ];
+                for (let i = 0; i < lines.length; i++) {
+                    const [a, b, c] = lines[i];
+                    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                        return { winner: squares[a], line: lines[i] };
+                    }
                 }
+                return null;
             }
-            return null;
+
+            const result = calculateWinner(squares);
+            const winner = result ? result.winner : null;
+            const winningLine = result ? result.line : null;
+            const isDraw = !winner && squares.every(square => square !== null);
+
+            useEffect(() => {
+                if ((winner || isDraw) && !gameOver) {
+                    setGameOver(true);
+                    if (winner === 'X') {
+                        const newScore = scoreX + 1;
+                        setScoreX(newScore);
+                        localStorage.setItem('tictactoe-scoreX', newScore);
+                    } else if (winner === 'O') {
+                        const newScore = scoreO + 1;
+                        setScoreO(newScore);
+                        localStorage.setItem('tictactoe-scoreO', newScore);
+                    } else if (isDraw) {
+                        const newDraws = draws + 1;
+                        setDraws(newDraws);
+                        localStorage.setItem('tictactoe-draws', newDraws);
+                    }
+                }
+            }, [winner, isDraw, gameOver, scoreX, scoreO, draws]);
+
+            function handleClick(i) {
+                if (winner || squares[i]) {
+                    return;
+                }
+                const newSquares = squares.slice();
+                newSquares[i] = xIsNext ? 'X' : 'O';
+                setSquares(newSquares);
+                setXIsNext(!xIsNext);
+            }
+
+            function resetGame() {
+                setSquares(Array(9).fill(null));
+                setXIsNext(true);
+                setGameOver(false);
+            }
+
+            function resetScores() {
+                setScoreX(0);
+                setScoreO(0);
+                setDraws(0);
+                localStorage.removeItem('tictactoe-scoreX');
+                localStorage.removeItem('tictactoe-scoreO');
+                localStorage.removeItem('tictactoe-draws');
+                resetGame();
+            }
+
+            let status;
+            if (winner) {
+                status = <span className="winner-message">🎉 Winner: {winner} 🎉</span>;
+            } else if (isDraw) {
+                status = <span className="draw-message">🤝 It's a draw! 🤝</span>;
+            } else {
+                status = `Next player: ${xIsNext ? 'X' : 'O'}`;
+            }
+
+            return (
+                <div className="game">
+                    <h1 className="game-title">Tic-Tac-Toe</h1>
+                    <div className="score-board">
+                        <div className="score player-x">
+                            <div className="score-label">Player X</div>
+                            <div className="score-value">{scoreX}</div>
+                        </div>
+                        <div className="score draws">
+                            <div className="score-label">Draws</div>
+                            <div className="score-value">{draws}</div>
+                        </div>
+                        <div className="score player-o">
+                            <div className="score-label">Player O</div>
+                            <div className="score-value">{scoreO}</div>
+                        </div>
+                    </div>
+                    <div className="status">{status}</div>
+                    <Board 
+                        squares={squares} 
+                        onClick={handleClick}
+                        winningLine={winningLine}
+                    />
+                    <div className="game-info">
+                        <div className="button-group">
+                            <button className="button reset-button" onClick={resetGame}>
+                                New Game
+                            </button>
+                            <button className="button clear-scores-button" onClick={resetScores}>
+                                Clear Scores
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
